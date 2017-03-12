@@ -22,9 +22,17 @@ const zeroOrMore = (parser1) => {
     }
 }
 
+// many2 is prefered to many imo.
+const many2 = (chars: PartOne.Character) => {
+    return chars.split('')
+                .map(char => PartOne.pchar(char))
+                .reduce ( (all, parser) => all === undefined ? parser : PartOne.orElse(all, parser))
+}
+
 const many = (char: Rx.Observable<PartOne.Character>) => {
     return char.map( char => PartOne.pchar(char))
-        .reduce((all, parser) => all === undefined ? parser : zeroOrMore(parser));
+        .reduce((all, parser) => all === undefined ? parser : PartOne.orElse(all, parser))
+        .map( anyOfparser => zeroOrMore(anyOfparser))
 }
 
 function run() {
@@ -34,7 +42,6 @@ function run() {
     }
 
     const runs = [
-        /*
         () => {
             const parser = mergeLet(anyOf(charRange('a..c')));
             console.log(`parse 'a..c' from 'ab'`)
@@ -62,7 +69,7 @@ function run() {
             const stringParser = mergeLet(pstring(Rx.Observable.from('blah')));
             console.log(`parse "'blah'" from 'bleh'`)
             return Rx.Observable.of(<PartOne.Response>[undefined, '', 'bleh']).let(stringParser)
-        },*/
+        },
         () => {
             const parser = mergeLet(many(Rx.Observable.from('1234567890')));
             console.log(`parse '780' from "780 is my area code"`);
@@ -73,9 +80,9 @@ function run() {
             const parser = mergeLet(many(Rx.Observable.from('1234567890')));
             console.log(`parse '' from "my area code is 780"`);
             return Rx.Observable.of(<PartOne.Response>[undefined, '', "my area code is 780"])
-                .let(parser);
+                .let(parser)
         },
-        /*() => {
+        () => {
             const parser = zeroOrMore(PartOne.pchar('b'));
             console.log(`parse '' from "aabbcc"`);
             return Rx.Observable.of(<PartOne.Response>[undefined, '', "aabbcc"]).let(parser);
@@ -92,9 +99,15 @@ function run() {
         },
         () => {
             const parser = mergeLet(many(Rx.Observable.from('ab')));
-            console.log(`parse 'a' from 'aab'`)
+            console.log(`parse zero or more of any of these characters 'aab' from 'aab'`)
             return Rx.Observable.of(<PartOne.Response>[undefined, '', "aab"]).let(parser);
-        }*/
+        },
+        () => {
+            const parser = zeroOrMore(many2('ab'));
+            console.log(`parse zero or more of any of these characters 'aab' from 'aab'`)
+            return Rx.Observable.of(<PartOne.Response>[undefined, '', "aab"]).let(parser);
+        },
+
     ];
 
     runs.forEach( (run, index) => {
@@ -102,5 +115,3 @@ function run() {
         run().subscribe(sub)
     })
 }
-
-run();
