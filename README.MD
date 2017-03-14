@@ -1,4 +1,4 @@
-This is a simple parser written in [rxjs](https://github.com/ReactiveX/rxjs). It mostly follows along with [this](https://fsharpforfunandprofit.com/series/understanding-parser-combinators.html) wonderful blog series from Scott Wlaschin.
+This is a simple parser written with [rxjs](https://github.com/ReactiveX/rxjs). It mostly follows along with [this](https://fsharpforfunandprofit.com/series/understanding-parser-combinators.html) wonderful blog series from Scott Wlaschin.
 While the parser in his blog series was written in `f#` and was ~500 lines this smaller parser finished in at 70 lines with 6 lines being import and type declarations. However, to be fair, I haven't followed along with the series in a 1-to-1 manner and may not have implemented all of the functions in the original series. I still feel there is a point to be made.
 
 # example
