@@ -1,8 +1,8 @@
 import * as Rx from 'rxjs/Rx';
-export type ParserCombinator = (parser1: Parser, parser2: Parser) => Parser;
-export type Parser = (input$: Rx.Observable<Response>) => Rx.Observable<Response>;
-export type Response = [undefined | boolean, string, string];
-export type Character = string;
+type ParserCombinator = (parser1: Parser, parser2: Parser) => Parser;
+type Parser = (input$: Rx.Observable<Response>) => Rx.Observable<Response>;
+type Response = [undefined | boolean, string, string];
+type Character = string;
 const isCharacter = (data: any): data is Character => typeof data === 'string' && data.length === 1; 
 
 const pchar = (targetChar: Character): Parser => {
@@ -61,7 +61,6 @@ const zeroOrMore = (parser1) => {
     }
 }
 
-// many2 is prefered to many imo.
 const many = (chars: string) => {
     const internalParsers =  chars.split('')
                 .map(char => pchar(char))
@@ -69,3 +68,31 @@ const many = (chars: string) => {
 
     return zeroOrMore(internalParsers);
 }
+
+
+
+/* 
+    usage: 
+
+    const parser = orElse(pchar('b'), pchar('a'));
+    Rx.Observable.of(<Response>[undefined, '', 'ab']).let(parser).subscribe( val => console.log(val));
+    [true, 'a', 'b']
+
+    const a_or_b = orElse(pchar('a'), pchar('b'));
+    const c_or_e = orElse(pchar('c'), pchar('e'));
+    const a_or_b_andThen_c_or_e = andThen(a_or_b, c_or_e);
+    Rx.Observable.of(<Response>[undefined, '', 'ae']).let(a_or_b_andThen_c_or_e).subscribe( val => console.log(val));
+    [true, 'ae', '']
+
+    const parser = anyOf('abc');
+    Rx.Observable.of(<Response>[undefined, '', 'ab']).let(parser).subscribe( val => console.log(val));
+    [ true, 'a', 'b' ]
+
+    const parser = many('1234567890');
+    Rx.Observable.of(<Response>[undefined, '', "780 is my area code"]).let(parser).subscribe( val => console.log(val));
+    [ true, '780', ' is my area code' ]
+
+    const stringParser = pstring('blah');
+    Rx.Observable.of(<Response>[undefined, '', 'blah']).let(stringParser).subscribe( val => console.log(val));
+    [ true, 'blah', '' ]
+*/
