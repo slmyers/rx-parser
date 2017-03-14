@@ -1,15 +1,17 @@
 {
   "name": "playground",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple parser implemented with rxjs",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "part-one": "ts-node parser-part-one/index.ts"
   },
-  "author": "",
+  "author": "Steven Myers",
   "license": "ISC",
+  "repository": {},
   "dependencies": {
+    "@types/core-js": "^0.9.37",
     "rxjs": "^5.2.0",
     "ts-node": "^2.1.0",
     "typescript": "^2.2.1"
