@@ -85,6 +85,22 @@ const many = (chars: string) => {
     return zeroOrMore(internalParsers, `many: ${chars}`);
 }
 
+type Position = {
+    line: number,
+    column: number
+}
+
+type State = {
+    lines: string[],
+    position: Position
+}
+
+
+const state = (input$: Rx.Observable<string[]>): Rx.Observable<State> => {
+    return;
+}
+
+
 /* 
 
     const logFn = _ => console.log(_)
@@ -123,3 +139,5 @@ const many = (chars: string) => {
     Rx.Observable.of(<Response>['', false, '', 'blah']).let(stringParser).subscribe(logFn);
     [ '[pstring: blah]', true, 'blah', '' ]
 */
+
+
