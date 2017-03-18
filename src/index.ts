@@ -1,4 +1,7 @@
 import * as Rx from 'rxjs/Rx';
+import * as fs from 'fs';
+import * as path from 'path';
+
 type ParserCombinator = (parser1: Parser, parser2: Parser, label: string) => Parser;
 type Parser = (input$: Rx.Observable<Response>) => Rx.Observable<Response>;
 // [ label, success, progress, current ]
@@ -53,16 +56,20 @@ const orElse: ParserCombinator = (parser1, parser2, label) => {
     }
 }
 
-const anyOf = (chars: string) => {
+const anyOf = (chars: string, line: number) => {
     return chars.split('')
-                .map( char => satisfy((car) => car === char, `[pchar: ${char}]`))
-                .reduce( (all, parser) => all === undefined ? parser : orElse(all, parser, `[anyOf: ${chars}]`));
+                .map( char => satisfy((car) => car === char, `[pchar: ${char}, line: ${line.toString()}]`))
+                .reduce( (all, parser) => all === undefined ? 
+                                          parser : 
+                                          orElse(all, parser, `[anyOf: ${chars}, line: ${line.toString()}]`));
 }
 
-const pstring = (chars: string) => {
+const pstring = (chars: string, line: number) => {
     return chars.split('')
-                .map( char => satisfy((car) => car === char, `[pchar: ${char}]`))
-                .reduce( (all, parser) => all === undefined ? parser : andThen(all, parser, `[pstring: ${chars}]`));
+                .map( char => satisfy((car) => car === char, `[pchar: ${char}, line: ${line.toString()}]`))
+                .reduce( (all, parser) => all === undefined ? 
+                                         parser : 
+                                         andThen(all, parser, `[pstring: ${chars}, line: ${line.toString()}]`));
 }
 
 const zeroOrMore = (parser1, chars) => {
@@ -77,28 +84,47 @@ const zeroOrMore = (parser1, chars) => {
     }
 }
 
-const many = (chars: string) => {
+const many = (chars: string, line: number) => {
     const internalParsers =  chars.split('')
-                .map( char => satisfy((car) => car === char, `[pchar: ${char}]`))
-                .reduce ( (all, parser) => all === undefined ? parser : orElse(all, parser, `[many: ${chars}]`) );
+                .map( char => satisfy((car) => car === char, `[pchar: ${char}, line: ${line.toString()}]`))
+                .reduce ( (all, parser) => all === undefined ? 
+                                           parser : 
+                                           orElse(all, parser, `[many: ${chars}, line: ${line.toString()}]`) );
 
     return zeroOrMore(internalParsers, `many: ${chars}`);
 }
 
-type Position = {
-    line: number,
-    column: number
-}
-
-type State = {
-    lines: string[],
-    position: Position
-}
 
 
-const state = (input$: Rx.Observable<string[]>): Rx.Observable<State> => {
-    return;
+const fileLines = (filePath: string): Rx.Observable<string[]> => {
+    if ( !fs.existsSync(filePath) ) return Rx.Observable.throw(`${filePath} does not exist`);
+
+    return Rx.Observable.from(fs.readFileSync(filePath).toString('ascii'))
+        .map( fileString => fileString.split(/[\n\r]/g))
 }
+
+
+const parseState = (input$: Rx.Observable<string[]>): Rx.Observable<{ [key: string]: string | number }> => {
+    return input$
+        .mergeMap(x => x)
+        .scan( (state, line) => {
+            return {
+                lineNumber: state.lineNumber + 1,
+                line
+            }
+        }, { lineNumber: -1, line: '' } )
+}
+
+
+
+/*
+
+const file = readFile
+ .toLines
+ .state
+ .multicast
+
+const getLine =
 
 
 /* 

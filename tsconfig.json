@@ -1,5 +1,15 @@
 {
     "compilerOptions": {
+        "moduleResolution": "node"
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}
+
+/*
+{
+    "compilerOptions": {
         "moduleResolution": "node",
         "target": "es6",
         "types": [
@@ -10,3 +20,4 @@
         "node_modules"
     ]
 }
+*/
